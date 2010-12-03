@@ -8,6 +8,8 @@ except AttributeError:
     class NullHandler(logging.Handler):
         def emit(self, record): pass
 
+__all__ = ["IOLogger", "LineLogger", "LoggingCmd", "wrapfd"]
+
 LOGGER = "cmdlog"
 
 log = logging.getLogger(LOGGER)
