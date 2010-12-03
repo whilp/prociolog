@@ -8,15 +8,16 @@ except AttributeError:
     class NullHandler(logging.Handler):
         def emit(self, record): pass
 
-log = logging.getLogger("shell")
-log.addHandler(NullHandler())
-
+LOGGER = "shell"
 SHELL = ["/bin/sh"]
 SSH = ["/usr/bin/ssh"]
 
+log = logging.getLogger(LOGGER)
+log.addHandler(NullHandler())
+
 class IOLogger(object):
     protect = ("log", "read", "readline", "write")
-    logname = "shell.io"
+    logname = LOGGER + ".io"
 
     def __init__(self, fd, name):
         self.fd = fd
