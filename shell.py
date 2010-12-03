@@ -49,6 +49,17 @@ class IOLogger(object):
         self.logger.log(level, repr(str), *args, **kwargs)
 
 def wrapfd(fd, logger, wrapper):
+    """Wrap a file object with a logging wrapper.
+
+    *fd* should be a file object; *logger* should be a :class:`logging.Logger`
+    instance. *wrapper* should take *fd* and *logger* as its two arguments and
+    supply *readers* and *writers* attributes; typically, it will be the
+    :class:`IOLogger` class or a subclass. This method instantiates the wrapper
+    and assigns the attributes of *fd* to it, skipping over methods identified
+    in the *readers* and *writers* attributes.
+
+    Returns a wrapped file object.
+    """
     wrapped = wrapper(fd, logger)
     attrs = (a for a in dir(fd) if a not in (wrapper.readers + wrapper.writers))
     for attr in attrs:
