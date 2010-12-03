@@ -9,6 +9,7 @@ except AttributeError:
         def emit(self, record): pass
 
 LOGGER = "shell"
+IOLOGGER = LOGGER + ".io"
 SHELL = ["/bin/sh"]
 SSH = ["/usr/bin/ssh"]
 
@@ -24,27 +25,24 @@ class IOLogger(object):
     Parameters are:
 
         * *fd* a file object; and
-        * *name* the logger name.
+        * *logger* the logger to which intercepted data will be passed.
     """
-    logname = LOGGER + ".io"
-    """Base logger name."""
     readers = ("read", "readline", "readlines")
     """Read methods on the file object that should be wrapped."""
     writers = ("write", "writelines")
     """Write methods on the file object that should be wrapped."""
 
-    def __init__(self, fd, name):
+    def __init__(self, fd, logger):
         self.fd = fd
-        self.logname = IOLogger.logname + '.' + name
+        self.logger = logger
 
     def log(self, str, *args, **kwargs):
-        logger = logging.getLogger(self.logname)
         _kwargs = kwargs.copy()
         level = _kwargs.pop("level", logging.DEBUG)
-        logger.log(level, repr(str), *args, **kwargs)
+        self.logger.log(level, repr(str), *args, **kwargs)
 
-def wrapfd(fd, name):
-    wrapped = IOLogger(fd, name)
+def wrapfd(fd, logger):
+    wrapped = IOLogger(fd, logger)
     attrs = (a for a in dir(fd) if a not in (IOLogger.readers + IOLogger.writers))
     for attr in attrs:
         try:
@@ -88,8 +86,8 @@ class Shell(Popen):
     def wrapfds(self):
         for fdname in self.fdnames:
             fd = getattr(self, fdname)
-            name = self.hostname + '.' + fdname
-            setattr(self, fdname, wrapfd(fd, name))
+            logger = logging.getLogger(IOLOGGER + '.' + self.hostname + '.' + fdname)
+            setattr(self, fdname, wrapfd(fd, logger))
 
 class RemoteShell(Shell):
 
