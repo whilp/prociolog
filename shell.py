@@ -58,7 +58,8 @@ def wrapfd(fd, logger, wrapper):
     Returns a wrapped file object.
     """
     wrapped = wrapper(fd, logger)
-    attrs = (a for a in dir(fd) if a not in (wrapper.readers + wrapper.writers))
+    attrs = (a for a in dir(wrapped.fd) 
+            if a not in (wrapper.readers + wrapper.writers))
     for attr in attrs:
         try:
             setattr(wrapped, attr, getattr(fd, attr))
