@@ -1,6 +1,4 @@
 import logging
-import pexpect
-import subprocess
 
 from subprocess import PIPE, Popen
 
