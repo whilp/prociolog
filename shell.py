@@ -103,7 +103,20 @@ for name in IOLogger.writers:
     setattr(IOLogger, name, writer(name))
     
 class LoggingCmd(Popen):
+    """A command subprocess that logs its IO.
+
+    Any data written to or read from the process' file objects will be sent
+    to a child of the process' main logger.
+
+    Parameters are:
+
+        * *args* command arguments (like :class:`subprocess.Popen`);
+        * *logger* a :class:`logging.Logger` instance (or something that has a
+          *name* attribute); and
+        * *kwargs*, which are passed on to :class:`subprocess.Popen`.
+    """
     fdnames = ("stdin", "stderr", "stdout")
+    """File objects that should be wrapped."""
 
     def __init__(self, args, logger, **kwargs):
         _kwargs = kwargs.copy()
@@ -114,6 +127,10 @@ class LoggingCmd(Popen):
         self.wrapfds()
 
     def wrapfds(self):
+        """Wrap the process' file objects.
+
+        Creates a logger for each file object (see :attr:`fdnames`).
+        """
         name = self.logger.name
         for fdname in self.fdnames:
             fd = getattr(self, fdname)
