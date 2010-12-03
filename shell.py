@@ -71,6 +71,12 @@ def wrapfd(fd, logger, wrapper):
     return wrapped
 
 def reader(reader):
+    """Wrap a reader method of a wrapped file object.
+
+    *reader* is the name of the method. The wrapped method will call the wrapped
+    file object's *log* method (typically :meth:`IOLogger.log`) after calling
+    the *reader* method.
+    """
     def wrapper(self, size=-1, *args, **kwargs):
         method = getattr(self.fd, reader)
         str = method(size)
@@ -79,12 +85,19 @@ def reader(reader):
     return wrapper
 
 def writer(writer):
+    """Wrap a writer method of a wrapped file object.
+
+    *writer* is the name of the method. The wrapped method will call the wrapped
+    file object's *log* method (typically :meth:`IOLogger.log`) before calling
+    the *writer* method.
+    """
     def wrapper(self, str, *args, **kwargs):
         method = getattr(self.fd, writer)
         self.log(str, *args, **kwargs)
         return method(str)
     return wrapper
 
+# Fill in the IOLogger's reader and writer methods.
 for name in IOLogger.readers:
     setattr(IOLogger, name, reader(name))
 for name in IOLogger.writers:
