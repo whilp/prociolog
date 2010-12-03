@@ -101,6 +101,50 @@ for name in IOLogger.readers:
     setattr(IOLogger, name, reader(name))
 for name in IOLogger.writers:
     setattr(IOLogger, name, writer(name))
+
+class LineLogger(IOLogger):
+    """Log each line of IO as it's written to or read from the wrapped file object.
+    """
+    newline = "\n"
+    """The newline character(s)."""
+
+    def __init__(self, fd, logger):
+        IOLogger.__init__(self, fd, logger)
+        self.readbuf = []
+        self.writebuf = []
+
+    def read(self, size=-1, *args, **kwargs):
+        chunks = self.fd.read(size).splitlines(keepends=True)
+        if not chunks:
+            return
+        elif self.readbuf:
+            chunks[0] = ''.join(self.readbuf + [chunks[0]])
+            self.readbuf = []
+
+        for chunk in chunks:
+            if not chunk.endswith(self.newline):
+                self.readbuf.append(chunk)
+                break
+            self.log(str, *args, **kwargs)
+
+    def write(self, str, *args, **kwargs):
+        self.fd.write(str)
+        chunks = str.splitlines(keepends=True)
+        if not chunks:
+            return
+        elif self.writebuf:
+            chunks[0] = ''.join(self.writebuf + [chunks[0]])
+            self.writebuf = []
+
+        for chunk in chunks:
+            if not chunk.endswith(self.newline):
+                self.writebuf.append(chunk)
+                break
+            self.log(str, *args, **kwargs)
+
+    def writelines(self, strings, *args, **kwargs):
+        for str in strings:
+            self.write(str, *args, **kwargs)
     
 class LoggingCmd(Popen):
     """A command subprocess that logs its IO.
