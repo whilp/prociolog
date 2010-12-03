@@ -9,7 +9,6 @@ except AttributeError:
         def emit(self, record): pass
 
 LOGGER = "shell"
-IOLOGGER = LOGGER + ".io"
 SHELL = ["/bin/sh"]
 SSH = ["/usr/bin/ssh"]
 
@@ -103,29 +102,20 @@ for name in IOLogger.readers:
 for name in IOLogger.writers:
     setattr(IOLogger, name, writer(name))
     
-class Shell(Popen):
+class LoggingCmd(Popen):
     fdnames = ("stdin", "stderr", "stdout")
 
-    def __init__(self, args=SHELL, **kwargs):
+    def __init__(self, args, logger, **kwargs):
         _kwargs = kwargs.copy()
         for fdname in self.fdnames:
             _kwargs[fdname] = PIPE
         Popen.__init__(self, args, **_kwargs)
-        self.hostname = "localhost"
+        self.logger = logger
         self.wrapfds()
 
     def wrapfds(self):
+        name = self.logger.name
         for fdname in self.fdnames:
             fd = getattr(self, fdname)
-            logger = logging.getLogger(IOLOGGER + '.' + self.hostname + '.' + fdname)
+            logger = logging.getLogger(name + '.' + fdname)
             setattr(self, fdname, wrapfd(fd, logger, IOLogger))
-
-class RemoteShell(Shell):
-
-    def __init__(self, args=None, hostname="localhost", **kwargs):
-        self.hostname = hostname
-
-        if args is None:
-            args = SHELL
-        args = SSH + [hostname] + args
-        Shell.__init__(self, args=args, **kwargs)
