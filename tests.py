@@ -3,10 +3,10 @@ import unittest
 class FakeWrapper(object):
     readers = ("areader",)
     writers = ("awriter",)
-    logs = []
 
     def __init__(self, fd, logger):
         self.fd = fd
+        self.logs = []
 
     def log(self, str, *args, **kwargs):
         pass
