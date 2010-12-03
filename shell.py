@@ -131,7 +131,8 @@ class LoggingCmd(Popen):
     def wrapfds(self):
         """Wrap the process' file objects.
 
-        Creates a logger for each file object (see :attr:`fdnames`).
+        Creates a logger for each file object (see :attr:`fdnames` and
+        :attr:`wrapper`).
         """
         name = self.logger.name
         for fdname in self.fdnames:
