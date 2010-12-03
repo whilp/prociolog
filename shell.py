@@ -1,7 +1,17 @@
+import logging
 import pexpect
 import subprocess
 
 from subprocess import PIPE
+
+try:
+    NullHandler = logging.NullHandler
+except AttributeError:
+    class NullHandler(logging.Handler):
+        def emit(self, record): pass
+
+log = logging.getLogger("shell")
+log.addHandler(NullHandler())
 
 SHELL = ["/bin/sh"]
 SSH = ["/usr/bin/ssh"]
