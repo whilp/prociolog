@@ -48,9 +48,9 @@ class IOLogger(object):
         level = _kwargs.pop("level", self.level)
         self.logger.log(level, repr(str), *args, **kwargs)
 
-def wrapfd(fd, logger):
-    wrapped = IOLogger(fd, logger)
-    attrs = (a for a in dir(fd) if a not in (IOLogger.readers + IOLogger.writers))
+def wrapfd(fd, logger, wrapper):
+    wrapped = wrapper(fd, logger)
+    attrs = (a for a in dir(fd) if a not in (wrapper.readers + wrapper.writers))
     for attr in attrs:
         try:
             setattr(wrapped, attr, getattr(fd, attr))
@@ -94,7 +94,7 @@ class Shell(Popen):
         for fdname in self.fdnames:
             fd = getattr(self, fdname)
             logger = logging.getLogger(IOLOGGER + '.' + self.hostname + '.' + fdname)
-            setattr(self, fdname, wrapfd(fd, logger))
+            setattr(self, fdname, wrapfd(fd, logger, IOLogger))
 
 class RemoteShell(Shell):
 
