@@ -53,7 +53,7 @@ def wrapfd(fd, logger, wrapper):
     *fd* should be a file object; *logger* should be a :class:`logging.Logger`
     instance. *wrapper* should take *fd* and *logger* as its two arguments and
     supply *readers* and *writers* attributes; typically, it will be the
-    :class:`IOLogger` class or a subclass. This method instantiates the wrapper
+    :class:`IOLogger` class or a subclass. This function instantiates the wrapper
     and assigns the attributes of *fd* to it, skipping over methods identified
     in the *readers* and *writers* attributes.
 
