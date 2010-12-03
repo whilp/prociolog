@@ -14,9 +14,6 @@ log.addHandler(NullHandler())
 SHELL = ["/bin/sh"]
 SSH = ["/usr/bin/ssh"]
 
-def LoggingDescriptor(fd):
-    return fd
-
 class IOLogger(object):
     protect = ("log", "read", "readline", "write")
     logname = "shell.io"
@@ -63,23 +60,27 @@ class IOLogger(object):
         return wrapped
 
 class Shell(Popen):
-    defaults = {
-        "stdin": PIPE,
-        "stdout": PIPE,
-        "stderr": PIPE,
-    }
+    fdnames = ("stdin", "stderr", "stdout")
 
     def __init__(self, args=SHELL, **kwargs):
-        defaults = self.defaults.copy()
-        defaults.update(kwargs)
-        Popen.__init__(self, args, **defaults)
-        self.stdin = LoggingDescriptor(self.stdin)
-        self.stdout = LoggingDescriptor(self.stdout)
-        self.stderr = LoggingDescriptor(self.stderr)
+        _kwargs = kwargs.copy()
+        for fdname in self.fdnames:
+            _kwargs[fdname] = PIPE
+        Popen.__init__(self, args, **_kwargs)
+        self.hostname = "localhost"
+        self.wrapfds()
+
+    def wrapfds(self):
+        for fdname in self.fdnames:
+            fd = getattr(self, fdname)
+            name = self.hostname + '.' + fdname
+            setattr(self, fdname, IOLogger.wrapfd(fd, name))
 
 class RemoteShell(Shell):
 
     def __init__(self, args=None, hostname="localhost", **kwargs):
+        self.hostname = hostname
+
         if args is None:
             args = SHELL
         args = SSH + [hostname] + args
