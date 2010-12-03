@@ -112,9 +112,10 @@ class LineLogger(IOLogger):
         self.writebuf = []
 
     def read(self, size=-1, *args, **kwargs):
-        chunks = self.fd.read(size).splitlines(True)
+        data = self.fd.read(size)
+        chunks = data.splitlines(True)
         if not chunks:
-            return
+            return data
         elif self.readbuf:
             chunks[0] = ''.join(self.readbuf + [chunks[0]])
             self.readbuf = []
@@ -124,6 +125,7 @@ class LineLogger(IOLogger):
                 self.readbuf.append(chunk)
                 break
             self.log(chunk, *args, **kwargs)
+        return data
 
     def write(self, str, *args, **kwargs):
         self.fd.write(str)
