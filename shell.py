@@ -2,7 +2,7 @@ import logging
 import pexpect
 import subprocess
 
-from subprocess import PIPE
+from subprocess import PIPE, Popen
 
 try:
     NullHandler = logging.NullHandler
@@ -19,7 +19,7 @@ SSH = ["/usr/bin/ssh"]
 def LoggingDescriptor(fd):
     return fd
 
-class Shell(subprocess.Popen):
+class Shell(Popen):
     defaults = {
         "stdin": PIPE,
         "stdout": PIPE,
@@ -29,7 +29,7 @@ class Shell(subprocess.Popen):
     def __init__(self, args=SHELL, **kwargs):
         defaults = self.defaults.copy()
         defaults.update(kwargs)
-        subprocess.Popen.__init__(self, args, **defaults)
+        Popen.__init__(self, args, **defaults)
         self.stdin = LoggingDescriptor(self.stdin)
         self.stdout = LoggingDescriptor(self.stdout)
         self.stderr = LoggingDescriptor(self.stderr)
