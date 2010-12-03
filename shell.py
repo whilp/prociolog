@@ -16,8 +16,9 @@ log = logging.getLogger(LOGGER)
 log.addHandler(NullHandler())
 
 class IOLogger(object):
-    protect = ("log", "read", "readline", "write")
     logname = LOGGER + ".io"
+    readers = ("read", "readline", "readlines")
+    writers = ("write", "writelines")
 
     def __init__(self, fd, name):
         self.fd = fd
@@ -29,37 +30,37 @@ class IOLogger(object):
         level = _kwargs.pop("level", logging.DEBUG)
         logger.log(level, repr(str), *args, **kwargs)
 
-    def read(self, size=None, *args, **kwargs):
-        str = self.fd.read(size)
+def wrapfd(fd, name):
+    wrapped = IOLogger(fd, name)
+    attrs = (a for a in dir(fd) if a not in (IOLogger.readers + IOLogger.writers))
+    for attr in attrs:
+        try:
+            setattr(wrapped, attr, getattr(fd, attr))
+        except TypeError:
+            pass
+
+    return wrapped
+
+def reader(reader):
+    def wrapper(self, size=-1, *args, **kwargs):
+        method = getattr(self.fd, reader)
+        str = method(size)
         self.log(str, *args, **kwargs)
         return str
+    return wrapper
 
-    def readline(self, size=-1, *args, **kwargs):
-        str = self.fd.readline(size)
+def writer(writer):
+    def wrapper(self, str, *args, **kwargs):
+        method = getattr(self.fd, writer)
         self.log(str, *args, **kwargs)
-        return str
+        return method(str)
+    return wrapper
 
-    def readlines(self, size=-1, *args, **kwargs):
-        str = self.fd.readlines(size)
-        self.log(str, *args, **kwargs)
-        return str
-
-    def write(self, str, *args, **kwargs):
-        self.log(str, *args, **kwargs)
-        return self.fd.write(str)
-
-    @staticmethod
-    def wrapfd(fd, name):
-        wrapped = IOLogger(fd, name)
-        attrs = (a for a in dir(fd) if a not in IOLogger.protect)
-        for attr in attrs:
-            try:
-                setattr(wrapped, attr, getattr(fd, attr))
-            except TypeError:
-                pass
-
-        return wrapped
-
+for name in IOLogger.readers:
+    setattr(IOLogger, name, reader(name))
+for name in IOLogger.writers:
+    setattr(IOLogger, name, writer(name))
+    
 class Shell(Popen):
     fdnames = ("stdin", "stderr", "stdout")
 
@@ -75,7 +76,7 @@ class Shell(Popen):
         for fdname in self.fdnames:
             fd = getattr(self, fdname)
             name = self.hostname + '.' + fdname
-            setattr(self, fdname, IOLogger.wrapfd(fd, name))
+            setattr(self, fdname, wrapfd(fd, name))
 
 class RemoteShell(Shell):
 
