@@ -117,6 +117,8 @@ class LoggingCmd(Popen):
     """
     fdnames = ("stdin", "stderr", "stdout")
     """File objects that should be wrapped."""
+    wrapper = IOLogger
+    """Wrapper class for the process' file objects."""
 
     def __init__(self, args, logger, **kwargs):
         _kwargs = kwargs.copy()
@@ -135,4 +137,4 @@ class LoggingCmd(Popen):
         for fdname in self.fdnames:
             fd = getattr(self, fdname)
             logger = logging.getLogger(name + '.' + fdname)
-            setattr(self, fdname, wrapfd(fd, logger, IOLogger))
+            setattr(self, fdname, wrapfd(fd, logger, self.wrapper))
