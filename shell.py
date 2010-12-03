@@ -6,6 +6,9 @@ from subprocess import PIPE
 SHELL = ["/bin/sh"]
 SSH = ["/usr/bin/ssh"]
 
+def LoggingDescriptor(fd):
+    return fd
+
 class Shell(subprocess.Popen):
     defaults = {
         "stdin": PIPE,
@@ -17,6 +20,9 @@ class Shell(subprocess.Popen):
         defaults = self.defaults.copy()
         defaults.update(kwargs)
         subprocess.Popen.__init__(self, args, **defaults)
+        self.stdin = LoggingDescriptor(self.stdin)
+        self.stdout = LoggingDescriptor(self.stdout)
+        self.stderr = LoggingDescriptor(self.stderr)
 
 class RemoteShell(Shell):
 
