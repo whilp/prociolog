@@ -31,14 +31,21 @@ class IOLogger(object):
     """Read methods on the file object that should be wrapped."""
     writers = ("write", "writelines")
     """Write methods on the file object that should be wrapped."""
+    level = logging.DEBUG
+    """Default level used by :meth:`log`."""
 
     def __init__(self, fd, logger):
         self.fd = fd
         self.logger = logger
 
     def log(self, str, *args, **kwargs):
+        """Log intercepted data.
+
+        Arguments are as for :method:`logging.Logger.log`, except *level* is
+        pulled from *kwargs* if present; otherwise, :attr:`level` is used.
+        """
         _kwargs = kwargs.copy()
-        level = _kwargs.pop("level", logging.DEBUG)
+        level = _kwargs.pop("level", self.level)
         self.logger.log(level, repr(str), *args, **kwargs)
 
 def wrapfd(fd, logger):
