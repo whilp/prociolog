@@ -65,7 +65,7 @@ def wrapfd(fd, logger, wrapper):
     for attr in attrs:
         try:
             setattr(wrapped, attr, getattr(fd, attr))
-        except TypeError:
+        except (AttributeError, TypeError):
             pass
 
     return wrapped
