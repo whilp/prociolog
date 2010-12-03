@@ -16,9 +16,22 @@ log = logging.getLogger(LOGGER)
 log.addHandler(NullHandler())
 
 class IOLogger(object):
+    """Intercept and log IO operations.
+
+    The *IOLogger* wraps a file object's read and write methods and passes the
+    incoming or outgoing data to a logger.
+
+    Parameters are:
+
+        * *fd* a file object; and
+        * *name* the logger name.
+    """
     logname = LOGGER + ".io"
+    """Base logger name."""
     readers = ("read", "readline", "readlines")
+    """Read methods on the file object that should be wrapped."""
     writers = ("write", "writelines")
+    """Write methods on the file object that should be wrapped."""
 
     def __init__(self, fd, name):
         self.fd = fd
