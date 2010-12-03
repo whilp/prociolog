@@ -17,6 +17,51 @@ SSH = ["/usr/bin/ssh"]
 def LoggingDescriptor(fd):
     return fd
 
+class IOLogger(object):
+    protect = ("log", "read", "readline", "write")
+    logname = "shell.io"
+
+    def __init__(self, fd, name):
+        self.fd = fd
+        self.logname = IOLogger.logname + '.' + name
+
+    def log(self, str, *args, **kwargs):
+        logger = logging.getLogger(self.logname)
+        _kwargs = kwargs.copy()
+        level = _kwargs.pop("level", logging.DEBUG)
+        logger.log(level, repr(str), *args, **kwargs)
+
+    def read(self, size=None, *args, **kwargs):
+        str = self.fd.read(size)
+        self.log(str, *args, **kwargs)
+        return str
+
+    def readline(self, size=-1, *args, **kwargs):
+        str = self.fd.readline(size)
+        self.log(str, *args, **kwargs)
+        return str
+
+    def readlines(self, size=-1, *args, **kwargs):
+        str = self.fd.readlines(size)
+        self.log(str, *args, **kwargs)
+        return str
+
+    def write(self, str, *args, **kwargs):
+        self.log(str, *args, **kwargs)
+        return self.fd.write(str)
+
+    @staticmethod
+    def wrapfd(fd, name):
+        wrapped = IOLogger(fd, name)
+        attrs = (a for a in dir(fd) if a not in IOLogger.protect)
+        for attr in attrs:
+            try:
+                setattr(wrapped, attr, getattr(fd, attr))
+            except TypeError:
+                pass
+
+        return wrapped
+
 class Shell(Popen):
     defaults = {
         "stdin": PIPE,
