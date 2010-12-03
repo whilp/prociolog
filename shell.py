@@ -8,9 +8,7 @@ except AttributeError:
     class NullHandler(logging.Handler):
         def emit(self, record): pass
 
-LOGGER = "shell"
-SHELL = ["/bin/sh"]
-SSH = ["/usr/bin/ssh"]
+LOGGER = "cmdlog"
 
 log = logging.getLogger(LOGGER)
 log.addHandler(NullHandler())
