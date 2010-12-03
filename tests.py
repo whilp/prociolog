@@ -9,7 +9,6 @@ class FakeWrapper(object):
         self.logs = []
 
     def log(self, str, *args, **kwargs):
-        pass
         self.logs.append((str, args, kwargs))
 
 class FakeFile(object):
@@ -22,6 +21,9 @@ class FakeFile(object):
     
     def read(self, size=-1):
         return "a fake read"
+
+    def write(self, str):
+        pass
 
 class TestUtils(unittest.TestCase):
 
@@ -49,6 +51,22 @@ class TestUtils(unittest.TestCase):
         logs = wrapper.logs
         self.assertEqual(len(logs), 1)
         self.assertEqual(logs[0], (result, ("an arg",), {"arg": "a kwarg"}))
+
+    def test_writer(self):
+        from cmdlog import writer
+
+        logger = object()
+        fd = FakeFile()
+        class TestWrapper(FakeWrapper):
+            pass
+        TestWrapper.write = writer("write")
+        wrapper = TestWrapper(fd, logger)
+
+        msg = "a fake write"
+        result = wrapper.write(msg, "an arg", arg="a kwarg")
+        logs = wrapper.logs
+        self.assertEqual(len(logs), 1)
+        self.assertEqual(logs[0], (msg, ("an arg",), {"arg": "a kwarg"}))
 
 if __name__ == "__main__":
     unittest.main()
