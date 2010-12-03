@@ -123,7 +123,7 @@ class LineLogger(IOLogger):
             if not chunk.endswith(self.newline):
                 self.readbuf.append(chunk)
                 break
-            self.log(str, *args, **kwargs)
+            self.log(chunk, *args, **kwargs)
 
     def write(self, str, *args, **kwargs):
         self.fd.write(str)
@@ -138,7 +138,7 @@ class LineLogger(IOLogger):
             if not chunk.endswith(self.newline):
                 self.writebuf.append(chunk)
                 break
-            self.log(str, *args, **kwargs)
+            self.log(chunk, *args, **kwargs)
 
     def writelines(self, strings, *args, **kwargs):
         for str in strings:
