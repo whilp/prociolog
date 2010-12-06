@@ -53,6 +53,28 @@ Otherwise, stick with stable.
 Basic Usage
 -----------
 
+.. highlight:: python
+
+:class:`LoggingCmd` is a drop in replacement for :class:`subprocess.Popen` ---
+it allows you to create subprocesses that log any data that is written to or
+read from the subprocess. All you need to do is use :class:`LoggingCmd` wherever
+you've been using :class:`subprocess.Popen`::
+    
+    import logging
+
+    from prociolog import LoggingCmd
+
+    logger = logging.getLogger("myapp.io")
+    cmd = LoggingCmd(["/bin/ls", "./tmp"], logger)
+    stdout, stderr = cmd.communicate()
+
+By default, :class:`LoggingCmd` creates each of the usual *stdin*, *stdout*
+and *stderr* as new file handles (as if you passed eg "stdin=subprocess.PIPE"
+as a keyword argument). These file handles are actually :class:`LoggingFile`
+instances which, when data is written using a handle's write methods (*write*,
+*writelines*) will duplicate the data to a chlid of the :class:`LoggingCmd`'s
+parent logger.
+
 API
 ---
 
