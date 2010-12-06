@@ -142,5 +142,51 @@ class TestLoggingFile(unittest.TestCase):
         self.assertEqual(len(logger.logs), 1)
         self.assertEqual(logger.logs[0], (loggingfile.level, repr(result), (), {}))
 
+class TestLineLoggingFile(unittest.TestCase):
+
+    def instance(self):
+        from cmdlog import LineLoggingFile
+
+        logger = FakeLogger()
+        fd = FakeFile()
+        fd.data = """foo\nbar\nbaz\n"""
+        return LineLoggingFile(fd, logger)
+
+    def test_read(self):
+        loggingfile = self.instance()
+        result = loggingfile.read()
+        logger = loggingfile.logger
+
+        self.assertEqual(result, loggingfile.fd.data)
+        self.assertEqual(len(logger.logs), 3)
+        self.assertEqual(logger.logs[0], (loggingfile.level, repr("foo\n"), (), {}))
+
+    def test_read_empty(self):
+        loggingfile = self.instance()
+        loggingfile.fd.data = ""
+        result = loggingfile.read()
+        logger = loggingfile.logger
+
+        self.assertEqual(result, loggingfile.fd.data)
+        self.assertEqual(len(logger.logs), 0)
+
+    def test_read(self):
+        loggingfile = self.instance()
+        result = loggingfile.read()
+        logger = loggingfile.logger
+
+        self.assertEqual(result, loggingfile.fd.data)
+        self.assertEqual(len(logger.logs), 3)
+        self.assertEqual(logger.logs[0], (loggingfile.level, repr("foo\n"), (), {}))
+
+    def test_read_no_newline_at_end(self):
+        loggingfile = self.instance()
+        loggingfile.fd.data = loggingfile.fd.data.strip()
+        result = loggingfile.read()
+        logger = loggingfile.logger
+
+        self.assertEqual(result, loggingfile.fd.data)
+        self.assertEqual(len(logger.logs), 2)
+
 if __name__ == "__main__":
     unittest.main()
