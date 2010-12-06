@@ -62,6 +62,21 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(len(logs), 1)
         self.assertEqual(logs[0], (result, ("an arg",), {"arg": "a kwarg"}))
 
+    def test_reader_size(self):
+        from cmdlog import reader
+
+        logger = object()
+        fd = FakeFile()
+        class TestWrapper(FakeWrapper):
+            pass
+        TestWrapper.read = reader("read")
+        wrapper = TestWrapper(fd, logger)
+
+        result = wrapper.read(1, "an arg", arg="a kwarg")
+        logs = wrapper.logs
+        self.assertEqual(len(logs), 1)
+        self.assertEqual(logs[0], (result[:1], ("an arg",), {"arg": "a kwarg"}))
+
     def test_writer(self):
         from cmdlog import writer
 
@@ -121,15 +136,6 @@ class TestLoggingFile(unittest.TestCase):
         result = loggingfile.read()
         logger = loggingfile.logger
         self.assertEqual(result, "a fake read")
-        self.assertEqual(len(logger.logs), 1)
-        self.assertEqual(logger.logs[0], (loggingfile.level, repr(result), (), {}))
-
-    def test_read_size(self):
-        loggingfile = self.instance()
-
-        result = loggingfile.read(1)
-        logger = loggingfile.logger
-        self.assertEqual(result, "a")
         self.assertEqual(len(logger.logs), 1)
         self.assertEqual(logger.logs[0], (loggingfile.level, repr(result), (), {}))
 
