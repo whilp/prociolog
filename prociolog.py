@@ -40,7 +40,7 @@ class LoggingFile(object):
     def log(self, str, *args, **kwargs):
         """Log intercepted data.
 
-        Arguments are as for :method:`logging.Logger.log`, except *level* is
+        Arguments are as for :meth:`logging.Logger.log`, except *level* is
         pulled from *kwargs* if present; otherwise, :attr:`level` is used.
         """
         _kwargs = kwargs.copy()
