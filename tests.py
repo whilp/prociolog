@@ -66,6 +66,12 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(len(logs), 1)
         self.assertEqual(logs[0], (result, ("an arg",), {"arg": "a kwarg"}))
 
+        wrapper.logs.pop()
+        result = wrapper.read(-1)
+        self.assertEqual(result, "")
+        self.assertEqual(len(logs), 1)
+        self.assertEqual(logs[0], ('', (), {}))
+
     def test_reader_size(self):
         from cmdlog import reader
 
