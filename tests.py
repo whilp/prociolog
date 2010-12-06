@@ -45,7 +45,7 @@ class FakeLogger(object):
 class TestUtils(unittest.TestCase):
 
     def test_wrapfd(self):
-        from cmdlog import wrapfd
+        from prociolog import wrapfd
 
         logger = object()
         fd = FakeFile()
@@ -55,7 +55,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(wrapped.areader, "untouched")
 
     def test_reader(self):
-        from cmdlog import reader
+        from prociolog import reader
 
         logger = object()
         fd = FakeFile()
@@ -76,7 +76,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(logs[0], ('', (), {}))
 
     def test_reader_size(self):
-        from cmdlog import reader
+        from prociolog import reader
 
         logger = object()
         fd = FakeFile()
@@ -96,7 +96,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(logs[0], (result, (), {}))
 
     def test_writer(self):
-        from cmdlog import writer
+        from prociolog import writer
 
         logger = object()
         fd = FakeFile()
@@ -114,14 +114,14 @@ class TestUtils(unittest.TestCase):
 class TestLoggingFile(unittest.TestCase):
 
     def instance(self):
-        from cmdlog import LoggingFile
+        from prociolog import LoggingFile
 
         logger = FakeLogger()
         fd = FakeFile()
         return LoggingFile(fd, logger)
 
     def test_log_plain(self):
-        from cmdlog import LoggingFile
+        from prociolog import LoggingFile
 
         loggingfile = self.instance()
         msg = "a message"
@@ -151,7 +151,7 @@ class TestLoggingFile(unittest.TestCase):
 class TestLineLoggingFile(unittest.TestCase):
 
     def instance(self):
-        from cmdlog import LineLoggingFile
+        from prociolog import LineLoggingFile
 
         logger = FakeLogger()
         fd = FakeFile()
