@@ -29,7 +29,7 @@ class FakeFile(object):
         return self.buffer.read(size)
 
     def write(self, str):
-        pass
+        return self.buffer.write(str)
     
     def close(self):
         pass
@@ -238,6 +238,19 @@ class TestLineLoggingFile(unittest.TestCase):
 
         self.assertEqual(len(loggingfile.writebuf), 0)
         self.assertEqual(len(logs), 0)
+
+    def test_write_writebuf(self):
+        loggingfile = self.instance()
+        loggingfile.writebuf.append("a partial write")
+        logs = loggingfile.logger.logs
+
+        result = loggingfile.write("the rest of a write\n")
+        loggingfile.fd.buffer.seek(0)
+
+        self.assertEqual(len(loggingfile.writebuf), 0)
+        self.assertEqual(loggingfile.fd.buffer.read(), "the rest of a write\n")
+        self.assertEqual(len(logs), 1)
+        self.assertEqual(logs[0][1], repr("a partial writethe rest of a write\n"))
 
 if __name__ == "__main__":
     unittest.main()
