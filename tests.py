@@ -88,33 +88,33 @@ class TestLoggingFile(unittest.TestCase):
     def test_log_plain(self):
         from cmdlog import LoggingFile
 
-        iologger = self.instance()
+        loggingfile = self.instance()
         msg = "a message"
-        iologger.log(msg)
-        logger = iologger.logger
+        loggingfile.log(msg)
+        logger = loggingfile.logger
         self.assertEqual(len(logger.logs), 1)
         self.assertEqual(logger.logs[0], (LoggingFile.level, repr(msg), (), {}))
 
     def test_log_level(self):
-        iologger = self.instance()
+        loggingfile = self.instance()
 
         msg = "a message"
-        iologger.log(msg, level=20)
-        logger = iologger.logger
+        loggingfile.log(msg, level=20)
+        logger = loggingfile.logger
         self.assertEqual(len(logger.logs), 1)
         self.assertEqual(logger.logs[0], (20, repr(msg), (), {}))
 
     def test_log_kwargs(self):
-        iologger = self.instance()
+        loggingfile = self.instance()
 
         msg = "a message"
-        iologger.log(msg, "arg", level=20, foo="bar")
-        logger = iologger.logger
+        loggingfile.log(msg, "arg", level=20, foo="bar")
+        logger = loggingfile.logger
         self.assertEqual(len(logger.logs), 1)
         self.assertEqual(logger.logs[0], (20, repr(msg), ("arg",), {"foo": "bar"}))
 
     def test_read(self):
-        pass
+        loggingfile = self.instance()
 
 if __name__ == "__main__":
     unittest.main()
