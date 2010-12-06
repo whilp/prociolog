@@ -8,7 +8,7 @@ except AttributeError:
     class NullHandler(logging.Handler):
         def emit(self, record): pass
 
-__all__ = ["LoggingFile", "LineLogger", "LoggingCmd", "wrapfd"]
+__all__ = ["LoggingFile", "LineLoggingFile", "LoggingCmd", "wrapfd"]
 
 LOGGER = "cmdlog"
 
@@ -103,7 +103,7 @@ for name in LoggingFile.readers:
 for name in LoggingFile.writers:
     setattr(LoggingFile, name, writer(name))
 
-class LineLogger(LoggingFile):
+class LineLoggingFile(LoggingFile):
     """Log each line of IO as it's written to or read from the wrapped file object.
     """
     newline = "\n"
