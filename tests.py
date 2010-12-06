@@ -252,5 +252,25 @@ class TestLineLoggingFile(unittest.TestCase):
         self.assertEqual(len(logs), 1)
         self.assertEqual(logs[0][1], repr("a partial writethe rest of a write\n"))
 
+    def test_writelines(self):
+        loggingfile = self.instance()
+        logs = loggingfile.logger.logs
+
+        loggingfile.writelines("foo bar baz".split())
+
+        self.assertEqual(len(logs), 0)
+        self.assertEqual(len(loggingfile.writebuf), 1)
+        self.assertEqual(loggingfile.writebuf[0], "foobarbaz")
+
+    def test_writelines_empty(self):
+        loggingfile = self.instance()
+        logs = loggingfile.logger.logs
+
+        loggingfile.writelines([])
+
+        self.assertEqual(len(logs), 0)
+        self.assertEqual(len(loggingfile.writebuf), 0)
+
+
 if __name__ == "__main__":
     unittest.main()
