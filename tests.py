@@ -194,5 +194,12 @@ class TestLineLoggingFile(unittest.TestCase):
         self.assertEqual(result, loggingfile.fd.data)
         self.assertEqual(len(logger.logs), 2)
 
+        logger.logs = []
+        result = loggingfile.read()
+        self.assertEqual(result, "")
+        self.assertEqual(len(logger.logs), 0)
+        self.assertEqual(len(loggingfile.readbuf), 1)
+        self.assertEqual(loggingfile.readbuf[0], "baz")
+
 if __name__ == "__main__":
     unittest.main()
