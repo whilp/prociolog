@@ -204,7 +204,7 @@ class TestLineLoggingFile(unittest.TestCase):
         self.assertEqual(len(loggingfile.readbuf), 1)
         self.assertEqual(loggingfile.readbuf[0], "baz")
 
-    def test_close(self):
+    def test_close_read(self):
         loggingfile = self.instance()
         result = loggingfile.read(2)
         logger = loggingfile.logger
@@ -216,6 +216,19 @@ class TestLineLoggingFile(unittest.TestCase):
         self.assertEqual(len(logger.logs), 1)
         self.assertEqual(logger.logs[0], 
                 (loggingfile.level, "'fo'", (), {'extra': {'onclose': 'read'}}))
+
+    def test_close_write(self):
+        loggingfile = self.instance()
+        result = loggingfile.write("foo")
+        logger = loggingfile.logger
+
+        self.assertEqual(len(logger.logs), 0)
+
+        loggingfile.close()
+
+        self.assertEqual(len(logger.logs), 1)
+        self.assertEqual(logger.logs[0], 
+                (loggingfile.level, "'foo'", (), {'extra': {'onclose': 'write'}}))
 
 if __name__ == "__main__":
     unittest.main()
