@@ -16,13 +16,16 @@ class FakeFile(object):
     areader = "untouched"
     awriter = "untouched"
 
+    def __init__(self):
+        self.data = "a fake read"
+
     def log(self, str, *args, **kwargs):
         pass
     
     def read(self, size=-1):
         if size < 0:
             size = None
-        return "a fake read"[:size]
+        return self.data[:size]
 
     def write(self, str):
         pass
