@@ -30,6 +30,9 @@ class FakeFile(object):
 
     def write(self, str):
         pass
+    
+    def close(self):
+        pass
 
 class FakeLogger(object):
 
@@ -200,6 +203,19 @@ class TestLineLoggingFile(unittest.TestCase):
         self.assertEqual(len(logger.logs), 0)
         self.assertEqual(len(loggingfile.readbuf), 1)
         self.assertEqual(loggingfile.readbuf[0], "baz")
+
+    def test_close(self):
+        loggingfile = self.instance()
+        result = loggingfile.read(2)
+        logger = loggingfile.logger
+
+        self.assertEqual(len(logger.logs), 0)
+
+        loggingfile.close()
+
+        self.assertEqual(len(logger.logs), 1)
+        self.assertEqual(logger.logs[0], 
+                (loggingfile.level, "'fo'", (), {'extra': {'onclose': 'read'}}))
 
 if __name__ == "__main__":
     unittest.main()

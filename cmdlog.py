@@ -114,6 +114,15 @@ class LineLoggingFile(LoggingFile):
         self.readbuf = []
         self.writebuf = []
 
+    def close(self):
+        try:
+            for chunk in self.readbuf:
+                self.log(chunk, extra=dict(onclose="read"))
+            for chunk in self.writebuf:
+                self.log(chunk, extra=dict(onclose="write"))
+        finally:
+            self.fd.close()
+
     def read(self, size=-1, *args, **kwargs):
         data = self.fd.read(size)
         chunks = data.splitlines(True)
