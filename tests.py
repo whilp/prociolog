@@ -20,14 +20,13 @@ class FakeFile(object):
 
     def __init__(self):
         self.data = "fake data\nmore fake data\n"
+        self.buffer = StringIO(self.data)
 
     def log(self, str, *args, **kwargs):
         pass
     
     def read(self, size=-1):
-        if size < 0:
-            size = None
-        return self.data[:size]
+        return self.buffer.read(size)
 
     def write(self, str):
         pass
@@ -143,6 +142,7 @@ class TestLineLoggingFile(unittest.TestCase):
         logger = FakeLogger()
         fd = FakeFile()
         fd.data = """foo\nbar\nbaz\n"""
+        fd.buffer.buf = fd.data
         return LineLoggingFile(fd, logger)
 
     def test_read(self):
@@ -157,6 +157,7 @@ class TestLineLoggingFile(unittest.TestCase):
     def test_read_empty(self):
         loggingfile = self.instance()
         loggingfile.fd.data = ""
+        loggingfile.fd.buffer.buf = loggingfile.fd.data
         result = loggingfile.read()
         logger = loggingfile.logger
 
@@ -175,6 +176,7 @@ class TestLineLoggingFile(unittest.TestCase):
     def test_read_no_newline_at_end(self):
         loggingfile = self.instance()
         loggingfile.fd.data = loggingfile.fd.data.strip()
+        loggingfile.fd.buffer.buf = loggingfile.fd.data
         result = loggingfile.read()
         logger = loggingfile.logger
 
