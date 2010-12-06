@@ -25,6 +25,14 @@ class FakeFile(object):
     def write(self, str):
         pass
 
+class FakeLogger(object):
+
+    def __init__(self):
+        self.logs = []
+
+    def log(self, level, msg, *args, **kwargs):
+        self.logs.append((level, msg, args, kwargs))
+
 class TestUtils(unittest.TestCase):
 
     def test_wrapfd(self):
@@ -67,6 +75,32 @@ class TestUtils(unittest.TestCase):
         logs = wrapper.logs
         self.assertEqual(len(logs), 1)
         self.assertEqual(logs[0], (msg, ("an arg",), {"arg": "a kwarg"}))
+
+class TestIOLogger(unittest.TestCase):
+
+    def test_log_plain(self):
+        from cmdlog import IOLogger
+
+        logger = FakeLogger()
+        fd = FakeFile()
+        iologger = IOLogger(fd, logger)
+
+        msg = "a message"
+        iologger.log(msg)
+        self.assertEqual(len(logger.logs), 1)
+        self.assertEqual(logger.logs[0], (IOLogger.level, repr(msg), (), {}))
+
+    def test_log_level(self):
+        from cmdlog import IOLogger
+
+        logger = FakeLogger()
+        fd = FakeFile()
+        iologger = IOLogger(fd, logger)
+
+        msg = "a message"
+        iologger.log(msg, level=20)
+        self.assertEqual(len(logger.logs), 1)
+        self.assertEqual(logger.logs[0], (20, repr(msg), (), {}))
 
 if __name__ == "__main__":
     unittest.main()

@@ -45,7 +45,7 @@ class IOLogger(object):
         """
         _kwargs = kwargs.copy()
         level = _kwargs.pop("level", self.level)
-        self.logger.log(level, repr(str), *args, **kwargs)
+        self.logger.log(level, repr(str), *args, **_kwargs)
 
 def wrapfd(fd, logger, wrapper):
     """Wrap a file object with a logging wrapper.
