@@ -133,15 +133,6 @@ class TestLoggingFile(unittest.TestCase):
         self.assertEqual(len(logger.logs), 1)
         self.assertEqual(logger.logs[0], (20, repr(msg), ("arg",), {"foo": "bar"}))
 
-    def test_read(self):
-        loggingfile = self.instance()
-
-        result = loggingfile.read()
-        logger = loggingfile.logger
-        self.assertEqual(result, "a fake read")
-        self.assertEqual(len(logger.logs), 1)
-        self.assertEqual(logger.logs[0], (loggingfile.level, repr(result), (), {}))
-
 class TestLineLoggingFile(unittest.TestCase):
 
     def instance(self):
