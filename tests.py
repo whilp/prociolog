@@ -78,39 +78,38 @@ class TestUtils(unittest.TestCase):
 
 class TestIOLogger(unittest.TestCase):
 
-    def test_log_plain(self):
+    def instance(self):
         from cmdlog import IOLogger
 
         logger = FakeLogger()
         fd = FakeFile()
-        iologger = IOLogger(fd, logger)
+        return IOLogger(fd, logger)
 
+    def test_log_plain(self):
+        from cmdlog import IOLogger
+
+        iologger = self.instance()
         msg = "a message"
         iologger.log(msg)
+        logger = iologger.logger
         self.assertEqual(len(logger.logs), 1)
         self.assertEqual(logger.logs[0], (IOLogger.level, repr(msg), (), {}))
 
     def test_log_level(self):
-        from cmdlog import IOLogger
-
-        logger = FakeLogger()
-        fd = FakeFile()
-        iologger = IOLogger(fd, logger)
+        iologger = self.instance()
 
         msg = "a message"
         iologger.log(msg, level=20)
+        logger = iologger.logger
         self.assertEqual(len(logger.logs), 1)
         self.assertEqual(logger.logs[0], (20, repr(msg), (), {}))
 
     def test_log_kwargs(self):
-        from cmdlog import IOLogger
-
-        logger = FakeLogger()
-        fd = FakeFile()
-        iologger = IOLogger(fd, logger)
+        iologger = self.instance()
 
         msg = "a message"
         iologger.log(msg, "arg", level=20, foo="bar")
+        logger = iologger.logger
         self.assertEqual(len(logger.logs), 1)
         self.assertEqual(logger.logs[0], (20, repr(msg), ("arg",), {"foo": "bar"}))
 
