@@ -102,5 +102,17 @@ class TestIOLogger(unittest.TestCase):
         self.assertEqual(len(logger.logs), 1)
         self.assertEqual(logger.logs[0], (20, repr(msg), (), {}))
 
+    def test_log_kwargs(self):
+        from cmdlog import IOLogger
+
+        logger = FakeLogger()
+        fd = FakeFile()
+        iologger = IOLogger(fd, logger)
+
+        msg = "a message"
+        iologger.log(msg, "arg", level=20, foo="bar")
+        self.assertEqual(len(logger.logs), 1)
+        self.assertEqual(logger.logs[0], (20, repr(msg), ("arg",), {"foo": "bar"}))
+
 if __name__ == "__main__":
     unittest.main()
