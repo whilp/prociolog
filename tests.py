@@ -116,5 +116,11 @@ class TestLoggingFile(unittest.TestCase):
     def test_read(self):
         loggingfile = self.instance()
 
+        result = loggingfile.read()
+        logger = loggingfile.logger
+        self.assertEqual(result, "a fake read")
+        self.assertEqual(len(logger.logs), 1)
+        self.assertEqual(logger.logs[0], (loggingfile.level, repr(result), (), {}))
+
 if __name__ == "__main__":
     unittest.main()
