@@ -8,17 +8,17 @@ except AttributeError:
     class NullHandler(logging.Handler):
         def emit(self, record): pass
 
-__all__ = ["IOLogger", "LineLogger", "LoggingCmd", "wrapfd"]
+__all__ = ["LoggingFile", "LineLogger", "LoggingCmd", "wrapfd"]
 
 LOGGER = "cmdlog"
 
 log = logging.getLogger(LOGGER)
 log.addHandler(NullHandler())
 
-class IOLogger(object):
+class LoggingFile(object):
     """Intercept and log IO operations.
 
-    The *IOLogger* wraps a file object's read and write methods and passes the
+    The *LoggingFile* wraps a file object's read and write methods and passes the
     incoming or outgoing data to a logger.
 
     Parameters are:
@@ -53,7 +53,7 @@ def wrapfd(fd, logger, wrapper):
     *fd* should be a file object; *logger* should be a :class:`logging.Logger`
     instance. *wrapper* should take *fd* and *logger* as its two arguments and
     supply *readers* and *writers* attributes; typically, it will be the
-    :class:`IOLogger` class or a subclass. This function instantiates the wrapper
+    :class:`LoggingFile` class or a subclass. This function instantiates the wrapper
     and assigns the attributes of *fd* to it, skipping over methods identified
     in the *readers* and *writers* attributes.
 
@@ -74,7 +74,7 @@ def reader(reader):
     """Wrap a reader method of a wrapped file object.
 
     *reader* is the name of the method. The wrapped method will call the wrapped
-    file object's *log* method (typically :meth:`IOLogger.log`) after calling
+    file object's *log* method (typically :meth:`LoggingFile.log`) after calling
     the *reader* method.
     """
     def wrapper(self, size=-1, *args, **kwargs):
@@ -88,7 +88,7 @@ def writer(writer):
     """Wrap a writer method of a wrapped file object.
 
     *writer* is the name of the method. The wrapped method will call the wrapped
-    file object's *log* method (typically :meth:`IOLogger.log`) before calling
+    file object's *log* method (typically :meth:`LoggingFile.log`) before calling
     the *writer* method.
     """
     def wrapper(self, str, *args, **kwargs):
@@ -97,20 +97,20 @@ def writer(writer):
         return method(str)
     return wrapper
 
-# Fill in the IOLogger's reader and writer methods.
-for name in IOLogger.readers:
-    setattr(IOLogger, name, reader(name))
-for name in IOLogger.writers:
-    setattr(IOLogger, name, writer(name))
+# Fill in the LoggingFile's reader and writer methods.
+for name in LoggingFile.readers:
+    setattr(LoggingFile, name, reader(name))
+for name in LoggingFile.writers:
+    setattr(LoggingFile, name, writer(name))
 
-class LineLogger(IOLogger):
+class LineLogger(LoggingFile):
     """Log each line of IO as it's written to or read from the wrapped file object.
     """
     newline = "\n"
     """The newline character(s)."""
 
     def __init__(self, fd, logger):
-        IOLogger.__init__(self, fd, logger)
+        LoggingFile.__init__(self, fd, logger)
         self.readbuf = []
         self.writebuf = []
 
@@ -164,7 +164,7 @@ class LoggingCmd(Popen):
     """
     fdnames = ("stdin", "stderr", "stdout")
     """File objects that should be wrapped."""
-    wrapper = IOLogger
+    wrapper = LoggingFile
     """Wrapper class for the process' file objects."""
 
     def __init__(self, args, logger, **kwargs):
