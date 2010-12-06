@@ -230,5 +230,14 @@ class TestLineLoggingFile(unittest.TestCase):
         self.assertEqual(logger.logs[1], 
                 (level, "'a partial write'", (), {'extra': {'onclose': 'write'}}))
 
+    def test_write_empty(self):
+        loggingfile = self.instance()
+        logs = loggingfile.logger.logs
+
+        result = loggingfile.write("")
+
+        self.assertEqual(len(loggingfile.writebuf), 0)
+        self.assertEqual(len(logs), 0)
+
 if __name__ == "__main__":
     unittest.main()
