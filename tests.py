@@ -85,7 +85,12 @@ class TestUtils(unittest.TestCase):
         result = wrapper.read(1, "an arg", arg="a kwarg")
         logs = wrapper.logs
         self.assertEqual(len(logs), 1)
-        self.assertEqual(logs[0], (result[:1], ("an arg",), {"arg": "a kwarg"}))
+        self.assertEqual(logs[0], (result, ("an arg",), {"arg": "a kwarg"}))
+
+        wrapper.logs.pop()
+        result = wrapper.read(1)
+        self.assertEqual(len(logs), 1)
+        self.assertEqual(logs[0], (result, (), {}))
 
     def test_writer(self):
         from cmdlog import writer
