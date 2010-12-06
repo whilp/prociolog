@@ -20,7 +20,9 @@ class FakeFile(object):
         pass
     
     def read(self, size=-1):
-        return "a fake read"
+        if size < 0:
+            size = None
+        return "a fake read"[:size]
 
     def write(self, str):
         pass
@@ -119,6 +121,15 @@ class TestLoggingFile(unittest.TestCase):
         result = loggingfile.read()
         logger = loggingfile.logger
         self.assertEqual(result, "a fake read")
+        self.assertEqual(len(logger.logs), 1)
+        self.assertEqual(logger.logs[0], (loggingfile.level, repr(result), (), {}))
+
+    def test_read_size(self):
+        loggingfile = self.instance()
+
+        result = loggingfile.read(1)
+        logger = loggingfile.logger
+        self.assertEqual(result, "a")
         self.assertEqual(len(logger.logs), 1)
         self.assertEqual(logger.logs[0], (loggingfile.level, repr(result), (), {}))
 
