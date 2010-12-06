@@ -204,6 +204,17 @@ class TestLineLoggingFile(unittest.TestCase):
         self.assertEqual(len(loggingfile.readbuf), 1)
         self.assertEqual(loggingfile.readbuf[0], "baz")
 
+    def test_read_readbuf(self):
+        loggingfile = self.instance()
+        loggingfile.readbuf.append("a partial read")
+        logs = loggingfile.logger.logs
+
+        result = loggingfile.read()
+        self.assertEqual(len(loggingfile.readbuf), 0)
+        self.assertEqual(result, loggingfile.fd.data)
+        self.assertEqual(len(logs), 3)
+        self.assertEqual(logs[0][1], repr("a partial readfoo\n"))
+
     def test_close(self):
         loggingfile = self.instance()
         logger = loggingfile.logger
