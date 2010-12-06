@@ -1,5 +1,7 @@
 import unittest
 
+from StringIO import StringIO
+
 class FakeWrapper(object):
     readers = ("areader",)
     writers = ("awriter",)
@@ -17,7 +19,7 @@ class FakeFile(object):
     awriter = "untouched"
 
     def __init__(self):
-        self.data = "a fake read"
+        self.data = "fake data\nmore fake data\n"
 
     def log(self, str, *args, **kwargs):
         pass
